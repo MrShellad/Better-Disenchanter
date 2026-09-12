@@ -1,0 +1,13 @@
+{
+  "type": "betterdisenchanter:catalyst",
+  "ingredient": {
+    "item": "minecraft:ender_pearl"
+  },
+  "count": 1,
+  "action": "extract_random",
+  "max_enchantments": 1,
+  "keep_item": true,
+  "damage_item": 500,
+  "level_cost": 0,
+  "description": "betterdisenchanter.catalyst.ender_pearl"
+}

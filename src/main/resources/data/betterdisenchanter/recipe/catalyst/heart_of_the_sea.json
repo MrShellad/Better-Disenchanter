@@ -1,0 +1,13 @@
+{
+  "type": "betterdisenchanter:catalyst",
+  "ingredient": {
+    "item": "minecraft:heart_of_the_sea"
+  },
+  "count": 1,
+  "action": "extract_all",
+  "max_enchantments": 100,
+  "keep_item": false,
+  "damage_item": 0,
+  "level_cost": 1,
+  "description": "betterdisenchanter.catalyst.heart_of_the_sea"
+}

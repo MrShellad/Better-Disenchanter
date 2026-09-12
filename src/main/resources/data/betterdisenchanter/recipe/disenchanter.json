@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "item": "minecraft:book"
+    },
+    "C": {
+      "item": "minecraft:crying_obsidian"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "pattern": [
+    " B ",
+    "DCD",
+    "OOO"
+  ],
+  "result": {
+    "count": 1,
+    "id": "betterdisenchanter:disenchanter"
+  }
+}

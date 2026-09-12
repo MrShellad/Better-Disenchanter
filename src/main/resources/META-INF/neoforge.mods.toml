@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+modId="betterdisenchanter"
+version="1.0.0"
+displayName="Better Disenchanter"
+description='''An immersive disenchanting table combining catalyst mechanics with 3D visuals and Item Display preview.'''
+authors="Antigravity"
+logoFile="logo.png"
+
+[[dependencies.betterdisenchanter]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.betterdisenchanter]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.22)"
+ordering="NONE"
+side="BOTH"

@@ -1,0 +1,24 @@
+﻿{
+  "block.betterdisenchanter.disenchanter": "Disenchanter Table",
+  "itemGroup.betterdisenchanter": "Better Disenchanter",
+
+  "betterdisenchanter.catalyst.none.title": "No Catalyst",
+  "betterdisenchanter.catalyst.none.desc": "Recovers 1st enchantment onto an enchanted book. The item is consumed.",
+
+  "betterdisenchanter.catalyst.item_consumed": "❌ Item Consumed",
+  "betterdisenchanter.catalyst.keep_item": "✔ Item Kept",
+  "betterdisenchanter.catalyst.keep_with_damage": "✔ Item Kept (-%d Durability)",
+  "betterdisenchanter.catalyst.level_reduced": "⬇ All Enchantments Reduced by %d Level",
+
+  "betterdisenchanter.catalyst.emerald": "Extract 2 random enchantments and consume the item.",
+  "betterdisenchanter.catalyst.diamond": "Extract 1st enchantment + 2 random enchantments and consume the item.",
+  "betterdisenchanter.catalyst.ender_pearl": "Extract 1 random enchantment, keep item but damage it by 500.",
+  "betterdisenchanter.catalyst.heart_of_the_sea": "Extract all enchantments with level -1, and consume the item.",
+  "betterdisenchanter.catalyst.amethyst_shard": "Extract 1st enchantment and keep the item intact.",
+  "betterdisenchanter.catalyst.nether_star": "Extract all enchantments and keep the item intact.",
+  "betterdisenchanter.catalyst.experience_bottle": "Extract all max-level enchantments and consume the item.",
+
+  "betterdisenchanter.ritual.in_progress": "Disenchanting Ritual in Progress...",
+  "text.betterdisenchanter.extra_catalysts_required": "Requires %1$d more catalyst(s)",
+  "text.betterdisenchanter.not_enough": " (Not enough)"
+}

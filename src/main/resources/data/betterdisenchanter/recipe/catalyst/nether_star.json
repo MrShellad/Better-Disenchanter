@@ -1,0 +1,14 @@
+{
+  "type": "betterdisenchanter:catalyst",
+  "ingredient": {
+    "item": "minecraft:nether_star"
+  },
+  "count": 1,
+  "action": "extract_all",
+  "max_enchantments": 100,
+  "keep_item": true,
+  "damage_item": 0,
+  "level_cost": 0,
+  "clear_remaining": true,
+  "description": "betterdisenchanter.catalyst.nether_star"
+}

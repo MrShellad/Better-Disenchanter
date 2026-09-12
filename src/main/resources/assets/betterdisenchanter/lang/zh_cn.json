@@ -1,0 +1,24 @@
+﻿{
+  "block.betterdisenchanter.disenchanter": "祛魔台",
+  "itemGroup.betterdisenchanter": "Better Disenchanter",
+
+  "betterdisenchanter.catalyst.none.title": "无催化剂",
+  "betterdisenchanter.catalyst.none.desc": "回收第 1 条附魔至附魔书，原装备被消耗销毁。",
+
+  "betterdisenchanter.catalyst.item_consumed": "❌ 原装备损毁",
+  "betterdisenchanter.catalyst.keep_item": "✔ 保留原装备",
+  "betterdisenchanter.catalyst.keep_with_damage": "✔ 保留装备 (损耗 %d 耐久)",
+  "betterdisenchanter.catalyst.level_reduced": "⬇ 所有附魔降低 %d 级",
+
+  "betterdisenchanter.catalyst.emerald": "回收随机 2 条附魔，并摧毁物品。",
+  "betterdisenchanter.catalyst.diamond": "回收第 1 条附魔 + 随机 2 条附魔，并摧毁物品。",
+  "betterdisenchanter.catalyst.ender_pearl": "回收随机 1 条附魔，保留物品但减少 500 点耐久。",
+  "betterdisenchanter.catalyst.heart_of_the_sea": "回收所有附魔但附魔等级 -1，并摧毁物品。",
+  "betterdisenchanter.catalyst.amethyst_shard": "回收第 1 条附魔，并无损保留物品。",
+  "betterdisenchanter.catalyst.nether_star": "回收所有附魔，并无损保留物品。",
+  "betterdisenchanter.catalyst.experience_bottle": "回收所有最高等级附魔，并摧毁物品。",
+
+  "betterdisenchanter.ritual.in_progress": "正在执行祛魔仪式...",
+  "text.betterdisenchanter.extra_catalysts_required": "还需要 %1$d 个催化剂",
+  "text.betterdisenchanter.not_enough": " (数量不足)"
+}
