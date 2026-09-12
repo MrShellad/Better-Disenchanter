@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="Better Disenchanter Logo" width="160" /><br>
+<img src="assets/logo.png" alt="Better Disenchanter Logo" width="1000" /><br>
 
-# ✨ Better Disenchanter (NeoForge 1.21.1)
+# Better Disenchanter (NeoForge 1.21.1)
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-brightgreen.svg?style=for-the-badge&logo=minecraft)](https://minecraft.net/)
 [![NeoForge](https://img.shields.io/badge/NeoForge-21.1.186+-orange.svg?style=for-the-badge)](https://neoforged.net/)
