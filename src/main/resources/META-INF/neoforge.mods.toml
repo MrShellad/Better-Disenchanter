@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="betterdisenchanter"
-version="1.0.0"
+version="1.1.0"
 displayName="Better Disenchanter"
 description='''An immersive disenchanting table combining catalyst mechanics with 3D visuals and Item Display preview.'''
 authors="Antigravity"

@@ -40,9 +40,15 @@ neoForge {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
 }
 
 dependencies {
+    compileOnly "mezz.jei:jei-1.21.1-common-api:19.56.0.438"
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.56.0.438"
 }
 
 tasks.withType(JavaCompile).configureEach {

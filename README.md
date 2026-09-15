@@ -24,6 +24,8 @@
 
 Say goodbye to clunky 2D GUIs! Place down the Disenchanter Table, lay down a standard Book, place your enchanted gear, and hold up your catalyst of choice to see a dynamic, floating **Item Display preview**. Right-click to initiate the disenchanting ritual accompanied by unique amethyst chime acoustics and mystical particles!
 
+Full **JEI (Just Enough Items)** support is included out-of-the-box — press `U` on any catalyst item or `R`/`U` on the Disenchanter Table to inspect catalyst requirements, required amounts, and enchantment outcomes!
+
 ---
 
 ## 🎮 How It Works
@@ -73,8 +75,8 @@ Crafted at a crafting table using **Crying Obsidian**, **Emerald Blocks**, and a
 
 Better Disenchanter features dedicated client and common configuration files with full Chinese comment support:
 
-### 1. Client Visuals (`config/betterdisenchanter-client.toml`)
-Fine-tune scales, billboard positions, background plate, and text shadows:
+### 1. Client Visuals & Audio (`config/betterdisenchanter-client.toml`)
+Fine-tune scales, billboard positions, background plate, text shadows, and custom completion audio:
 ```toml
 [visuals]
     # Scale of floating weapon/item (Default: 0.95)
@@ -93,7 +95,16 @@ Fine-tune scales, billboard positions, background plate, and text shadows:
     showTextBackground = true
     # Toggle text drop shadow (Default: false)
     textDropShadow = false
+
+[audio]
+    # Custom completion sound ID (Default: "minecraft:block.amethyst_cluster.break", "none" to disable)
+    customCompletionSound = "minecraft:block.amethyst_cluster.break"
+    # Custom completion sound volume (Default: 1.0, range: 0.0 ~ 2.0)
+    completionSoundVolume = 1.0
+    # Custom completion sound pitch (Default: 1.25, range: 0.1 ~ 2.0)
+    completionSoundPitch = 1.25
 ```
+> 💡 **In-Game Sound Picker**: Type `/betterdisenchanter sound` (or `/disenchanter sound`) in chat to open the visual sound browser, preview any game sound with one click, and configure volume/pitch live!
 
 ### 2. Common Gameplay & Catalysts (`config/betterdisenchanter-common.toml`)
 Control gameplay rules and customize catalyst counts:
@@ -152,10 +163,12 @@ All catalyst recipes are completely data-driven (`betterdisenchanter:catalyst`).
 ### 核心亮点：
 - 📖 **全 3D 沉浸式交互**：无需打开 GUI。放书、放装备、手持催化剂右键一气呵成；支持左键敲击（空手空击）或潜行右键安全取回物品。
 - 🔮 **动态 Item Display 悬浮预览**：手持催化剂靠近时，祛魔台上方自动升起 3D 旋转催化剂与双行悬浮看板，实时显示所需数量、背包余量及装备损毁/保留状态。
-- 🎵 **个性化紫水晶音效**：采用紫水晶簇碎落（`amethyst_cluster.fall`）搭配每种催化剂独特的共鸣音调与和弦，仪式感满满。
+- ✨ **地表魔法阵与抽离流特效**：仪式期间在祛魔台底部地面生成双环反向同心旋转魔法阵（随催化剂实时变换主题色，四方节点升腾符文）；附魔能量由悬浮武器螺旋注入古籍，并在收尾瞬间沿地面炸开 360° 冲击波！
+- 🎵 **收尾音效全自定义与试听界面**：输入 `/betterdisenchanter sound`（或在 Mods 列表点击 Config）即可打开音效选择器，自动索引全游戏成百上千种音效，支持实时搜索与【▶ 试听】试播，随心定制专属仪式收尾声；彻底移除刺耳图腾音效。
 - 🛡️ **原生抗穿模抗闪烁**：运用原版 `Font.DisplayMode.POLYGON_OFFSET` 与独立背景底板，在任何光影包（Iris / Oculus）、视距与视角下均永不闪烁、缺字或穿模。
+- 🔍 **完整 JEI 支持**：内置 JEI (Just Enough Items) 原生联动。在 JEI 中对任意催化剂（绿宝石、钻石、紫水晶、下界之星等）按 `U` 键即可一键查看催化用途、消耗数量与产出效果；在祛魔台上按 `R`/`U` 键亦可浏览全套祛魔配方。
 - ⚙️ **双端独立配置文件**：
-  - `config/betterdisenchanter-client.toml`：调节悬浮物大小、悬浮高度、背景黑框开关、文字阴影；
+  - `config/betterdisenchanter-client.toml`：调节悬浮物大小、悬浮高度、背景黑框开关、文字阴影、自定义完成音效及音量音调；
   - `config/betterdisenchanter-common.toml`：配置每种催化剂的启用状态、消耗数量（1~64）、空手祛魔开关等，全中文注释友好支持。
 
 ---

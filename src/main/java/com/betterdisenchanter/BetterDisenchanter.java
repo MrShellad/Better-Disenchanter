@@ -73,7 +73,7 @@ public class BetterDisenchanter {
         modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.COMMON, BetterDisenchanterConfig.COMMON_SPEC);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            BetterDisenchanterClient.init(modEventBus);
+            BetterDisenchanterClient.init(modEventBus, modContainer);
         }
 
         LOGGER.info("Better Disenchanter initialized!");

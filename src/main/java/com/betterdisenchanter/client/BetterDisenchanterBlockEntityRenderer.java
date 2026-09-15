@@ -76,8 +76,10 @@ public class BetterDisenchanterBlockEntityRenderer implements BlockEntityRendere
             vertexConsumer = VertexMultiConsumer.create(bufferSource.getBuffer(RenderType.entityGlint()), vertexConsumer);
         }
 
+        boolean isEnchanting = entity.getStatus() == BetterDisenchanterBlockEntity.Status.ENCHANTING;
         float openAngle = entity.bookLastOpenAngle + (entity.bookOpenAngle - entity.bookLastOpenAngle) * partialTick;
-        this.bookModel.setupAnim(1.0F, 0.0F, 0.0F, openAngle);
+        float pageFlip = isEnchanting ? (Mth.sin(gameTime * 0.45F) * 0.18F + 0.18F) : 0.0F;
+        this.bookModel.setupAnim(gameTime, pageFlip, pageFlip * 0.85F, openAngle);
         this.bookModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, -1);
 
         poseStack.popPose();
@@ -93,8 +95,22 @@ public class BetterDisenchanterBlockEntityRenderer implements BlockEntityRendere
         float bob = Mth.sin(gameTime * 0.12F) * 0.025F;
         poseStack.translate(0.0D, bob, 0.0D);
 
-        // Smooth rotation
-        poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * 2.2F));
+        boolean isEnchanting = entity.getStatus() == BetterDisenchanterBlockEntity.Status.ENCHANTING;
+        float rotSpeed = 2.2F;
+
+        if (isEnchanting) {
+            float progress = Math.min(1.0F, entity.ticks / 30.0F);
+            rotSpeed = 2.2F + progress * 15.0F;
+
+            // 仪式高频魔力激荡震颤
+            float shakeMagnitude = progress * 0.015F;
+            float shakeX = Mth.sin(gameTime * 2.2F) * shakeMagnitude;
+            float shakeZ = Mth.cos(gameTime * 2.6F) * shakeMagnitude;
+            poseStack.translate(shakeX, 0.0D, shakeZ);
+        }
+
+        // Smooth rotation (accelerates during ritual)
+        poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * rotSpeed));
         float itemScale = BetterDisenchanterConfig.getFloatingItemScale();
         poseStack.scale(itemScale, itemScale, itemScale);
 

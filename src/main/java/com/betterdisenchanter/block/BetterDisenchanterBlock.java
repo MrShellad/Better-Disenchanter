@@ -63,7 +63,10 @@ public class BetterDisenchanterBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BetterDisenchanterBlockEntity disenchanterBe) {
-            return disenchanterBe.onUseItem(stack, player, hand);
+            InteractionResult result = disenchanterBe.handlePlayerInteraction(player, stack, hand);
+            if (result.consumesAction()) {
+                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            }
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
@@ -72,7 +75,7 @@ public class BetterDisenchanterBlock extends BaseEntityBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BetterDisenchanterBlockEntity disenchanterBe) {
-            return disenchanterBe.onUseEmptyHand(player);
+            return disenchanterBe.handlePlayerInteraction(player, player.getItemInHand(InteractionHand.MAIN_HAND), InteractionHand.MAIN_HAND);
         }
         return InteractionResult.PASS;
     }

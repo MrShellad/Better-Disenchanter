@@ -31,6 +31,11 @@ public class BetterDisenchanterConfig {
     public static final ModConfigSpec.BooleanValue SHOW_TEXT_BACKGROUND;
     public static final ModConfigSpec.BooleanValue TEXT_DROP_SHADOW;
 
+    // Particle Options
+    public static final ModConfigSpec.BooleanValue ENABLE_PARTICLES;
+    public static final ModConfigSpec.BooleanValue ENABLE_RITUAL_MAGIC_CIRCLE;
+    public static final ModConfigSpec.BooleanValue ENABLE_COMPLETION_BURST;
+
     // ==========================================
     // 通用玩法与催化剂配置 (Common Spec)
     // ==========================================
@@ -106,6 +111,19 @@ public class BetterDisenchanterConfig {
         TEXT_DROP_SHADOW = CLIENT_BUILDER
                 .comment("是否渲染悬浮文字的阴影 (默认: false, 当关闭背景底板时可开启以增强辨识度)")
                 .define("textDropShadow", false);
+
+        CLIENT_BUILDER.comment("粒子特效开关设置 (Particle effect toggles)");
+        ENABLE_PARTICLES = CLIENT_BUILDER
+                .comment("是否启用祛魔仪式与收尾时的粒子特效总开关 (默认: true，关闭后将不产生任何仪式与收尾粒子)")
+                .define("enableParticles", true);
+
+        ENABLE_RITUAL_MAGIC_CIRCLE = CLIENT_BUILDER
+                .comment("是否启用仪式过程中的地表旋转收缩魔法阵与装备附魔抽离流粒子 (默认: true)")
+                .define("enableRitualMagicCircle", true);
+
+        ENABLE_COMPLETION_BURST = CLIENT_BUILDER
+                .comment("是否启用仪式完成瞬间的双层冲击波与烟花喷泉大爆炸粒子 (默认: true)")
+                .define("enableCompletionBurst", true);
 
         CLIENT_BUILDER.pop();
         CLIENT_SPEC = CLIENT_BUILDER.build();
@@ -214,6 +232,30 @@ public class BetterDisenchanterConfig {
             return TEXT_DROP_SHADOW.get();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public static boolean isParticlesEnabled() {
+        try {
+            return ENABLE_PARTICLES.get();
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    public static boolean isMagicCircleEnabled() {
+        try {
+            return isParticlesEnabled() && ENABLE_RITUAL_MAGIC_CIRCLE.get();
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    public static boolean isCompletionBurstEnabled() {
+        try {
+            return isParticlesEnabled() && ENABLE_COMPLETION_BURST.get();
+        } catch (Exception e) {
+            return true;
         }
     }
 

@@ -1,7 +1,8 @@
-﻿{
+{
   "block.betterdisenchanter.disenchanter": "Disenchanter Table",
   "itemGroup.betterdisenchanter": "Better Disenchanter",
 
+  "betterdisenchanter.jei.catalyst_title": "Disenchanting Catalyst",
   "betterdisenchanter.catalyst.none.title": "No Catalyst",
   "betterdisenchanter.catalyst.none.desc": "Recovers 1st enchantment onto an enchanted book. The item is consumed.",
 
@@ -20,5 +21,8 @@
 
   "betterdisenchanter.ritual.in_progress": "Disenchanting Ritual in Progress...",
   "text.betterdisenchanter.extra_catalysts_required": "Requires %1$d more catalyst(s)",
-  "text.betterdisenchanter.not_enough": " (Not enough)"
+  "text.betterdisenchanter.not_enough": " (Not enough)",
+  "text.betterdisenchanter.need_book": "Please place a regular book first!",
+  "text.betterdisenchanter.need_item": "Please place an enchanted item to disenchant!",
+  "text.betterdisenchanter.need_catalyst": "A catalyst is required to perform disenchanting!"
 }

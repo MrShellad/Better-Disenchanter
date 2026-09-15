@@ -1,7 +1,8 @@
-﻿{
+{
   "block.betterdisenchanter.disenchanter": "祛魔台",
   "itemGroup.betterdisenchanter": "Better Disenchanter",
 
+  "betterdisenchanter.jei.catalyst_title": "祛魔催化",
   "betterdisenchanter.catalyst.none.title": "无催化剂",
   "betterdisenchanter.catalyst.none.desc": "回收第 1 条附魔至附魔书，原装备被消耗销毁。",
 
@@ -20,5 +21,8 @@
 
   "betterdisenchanter.ritual.in_progress": "正在执行祛魔仪式...",
   "text.betterdisenchanter.extra_catalysts_required": "还需要 %1$d 个催化剂",
-  "text.betterdisenchanter.not_enough": " (数量不足)"
+  "text.betterdisenchanter.not_enough": " (数量不足)",
+  "text.betterdisenchanter.need_book": "请先放置普通书本！",
+  "text.betterdisenchanter.need_item": "请放置需要祛魔的附魔装备！",
+  "text.betterdisenchanter.need_catalyst": "需要催化剂才能进行祛魔！"
 }
