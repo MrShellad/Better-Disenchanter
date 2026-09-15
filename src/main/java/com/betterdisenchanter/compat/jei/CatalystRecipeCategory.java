@@ -10,14 +10,14 @@ import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -56,7 +56,7 @@ public class CatalystRecipeCategory implements IRecipeCategory<CatalystRecipe> {
     }
 
     @Override
-    public RecipeType<CatalystRecipe> getRecipeType() {
+    public IRecipeType<CatalystRecipe> getRecipeType() {
         return BetterDisenchanterJeiPlugin.CATALYST_RECIPE_TYPE;
     }
 
@@ -84,14 +84,13 @@ public class CatalystRecipeCategory implements IRecipeCategory<CatalystRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, CatalystRecipe recipe, IFocusGroup focuses) {
         // Slot 1: Catalyst
         IRecipeSlotBuilder catalystSlot = builder.addInputSlot(6, 6).setStandardSlotBackground();
-        if (!recipe.ingredient.isEmpty()) {
-            ItemStack[] items = recipe.ingredient.getItems();
+        if (recipe.ingredient.isPresent()) {
             List<ItemStack> displayStacks = new ArrayList<>();
-            for (ItemStack item : items) {
-                ItemStack stack = item.copy();
+            recipe.ingredient.get().items().forEach(holder -> {
+                ItemStack stack = new ItemStack(holder.value());
                 stack.setCount(recipe.getRequiredCount(stack));
                 displayStacks.add(stack);
-            }
+            });
             catalystSlot.addItemStacks(displayStacks);
         } else {
             catalystSlot.addRichTooltipCallback((recipeSlotView, tooltip) -> {
@@ -105,11 +104,11 @@ public class CatalystRecipeCategory implements IRecipeCategory<CatalystRecipe> {
 
         // Slot 3: Book
         IRecipeSlotBuilder bookSlot = builder.addInputSlot(72, 6).setStandardSlotBackground();
-        bookSlot.addItemStack(new ItemStack(Items.BOOK));
+        bookSlot.add(new ItemStack(Items.BOOK));
 
         // Output Slot 1: Enchanted Book
         IRecipeSlotBuilder bookOutputSlot = builder.addOutputSlot(120, 6).setStandardSlotBackground();
-        bookOutputSlot.addItemStack(new ItemStack(Items.ENCHANTED_BOOK));
+        bookOutputSlot.add(new ItemStack(Items.ENCHANTED_BOOK));
 
         // Output Slot 2: Preserved Gear (if applicable)
         if (recipe.keepItem) {
@@ -124,7 +123,7 @@ public class CatalystRecipeCategory implements IRecipeCategory<CatalystRecipe> {
     }
 
     @Override
-    public void draw(CatalystRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(CatalystRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         arrow.draw(guiGraphics, 94, 7);
         plusSign.draw(guiGraphics, 26, 10);
         plusSign.draw(guiGraphics, 59, 10);
@@ -150,15 +149,15 @@ public class CatalystRecipeCategory implements IRecipeCategory<CatalystRecipe> {
             status = Component.empty().append(status).append(Component.literal("  ")).append(penalty);
         }
 
-        guiGraphics.drawString(font, status, 6, 30, color, false);
+        guiGraphics.text(font, status, 6, 30, color, false);
 
         // Description text
         Component desc = Component.translatable(recipe.descriptionKey);
-        guiGraphics.drawWordWrap(font, desc, 6, 43, 156, 0x444444);
+        guiGraphics.textWithWordWrap(font, desc, 6, 43, 156, 0x444444);
     }
 
     @Override
-    public ResourceLocation getRegistryName(CatalystRecipe recipe) {
+    public Identifier getIdentifier(CatalystRecipe recipe) {
         if (recipe.descriptionKey != null && !recipe.descriptionKey.isEmpty()) {
             return BetterDisenchanter.id(recipe.descriptionKey.replace("betterdisenchanter.catalyst.", "catalyst_").replace('.', '_'));
         }

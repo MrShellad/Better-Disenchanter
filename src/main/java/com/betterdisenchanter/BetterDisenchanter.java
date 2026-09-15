@@ -6,7 +6,7 @@ import com.betterdisenchanter.client.BetterDisenchanterClient;
 import com.betterdisenchanter.recipe.ModRecipes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -50,7 +50,7 @@ public class BetterDisenchanter {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BetterDisenchanterBlockEntity>> DISENCHANTER_BE =
             BLOCK_ENTITY_TYPES.register("disenchanter",
-                    () -> BlockEntityType.Builder.of(BetterDisenchanterBlockEntity::new, DISENCHANTER_BLOCK.get()).build(null));
+                    () -> new BlockEntityType<>(BetterDisenchanterBlockEntity::new, DISENCHANTER_BLOCK.get()));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("betterdisenchanter_tab",
             () -> CreativeModeTab.builder()
@@ -72,14 +72,14 @@ public class BetterDisenchanter {
         modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, BetterDisenchanterConfig.CLIENT_SPEC);
         modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.COMMON, BetterDisenchanterConfig.COMMON_SPEC);
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             BetterDisenchanterClient.init(modEventBus, modContainer);
         }
 
         LOGGER.info("Better Disenchanter initialized!");
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 }

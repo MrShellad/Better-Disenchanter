@@ -13,13 +13,13 @@ logoFile="logo.png"
 [[dependencies.betterdisenchanter]]
 modId="neoforge"
 type="required"
-versionRange="[21.1.0,)"
+versionRange="[26.2.0,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.betterdisenchanter]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.1,1.22)"
+versionRange="[26.2,27)"
 ordering="NONE"
 side="BOTH"

@@ -12,7 +12,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -23,10 +26,11 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
 
-    public final Ingredient ingredient;
+    public final Optional<Ingredient> ingredient;
     public final int count;
     public final String action;
     public final int maxEnchantments;
@@ -36,7 +40,7 @@ public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
     public final boolean clearRemaining;
     public final String descriptionKey;
 
-    public CatalystRecipe(Ingredient ingredient, int count, String action, int maxEnchantments,
+    public CatalystRecipe(Optional<Ingredient> ingredient, int count, String action, int maxEnchantments,
                           int damageItem, int levelCost, boolean keepItem, boolean clearRemaining,
                           String descriptionKey) {
         this.ingredient = ingredient;
@@ -50,9 +54,41 @@ public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
         this.descriptionKey = descriptionKey;
     }
 
+    public CatalystRecipe(Ingredient ingredient, int count, String action, int maxEnchantments,
+                          int damageItem, int levelCost, boolean keepItem, boolean clearRemaining,
+                          String descriptionKey) {
+        this(Optional.of(ingredient), count, action, maxEnchantments, damageItem, levelCost, keepItem, clearRemaining, descriptionKey);
+    }
+
     public static final CatalystRecipe DEFAULT_PROCESSOR = new CatalystRecipe(
-            Ingredient.EMPTY, 0, "extract_first", 1, 0, 0, false, false, "betterdisenchanter.catalyst.none.desc"
+            Optional.empty(), 0, "extract_first", 1, 0, 0, false, false, "betterdisenchanter.catalyst.none.desc"
     );
+
+    public static List<CatalystRecipe> getDefaultRecipes() {
+        List<CatalystRecipe> list = new ArrayList<>();
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.EMERALD)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.EMERALD), 1, "extract_random", 2, 0, 0, false, false, "betterdisenchanter.catalyst.emerald"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.DIAMOND)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.DIAMOND), 1, "extract_first_plus_random", 2, 0, 0, false, false, "betterdisenchanter.catalyst.diamond"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.ENDER_PEARL)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.ENDER_PEARL), 1, "extract_random", 1, 500, 0, true, false, "betterdisenchanter.catalyst.ender_pearl"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.HEART_OF_THE_SEA)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.HEART_OF_THE_SEA), 1, "extract_all", 99, 0, 1, false, false, "betterdisenchanter.catalyst.heart_of_the_sea"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.AMETHYST_SHARD)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.AMETHYST_SHARD), 1, "extract_first", 1, 0, 0, true, false, "betterdisenchanter.catalyst.amethyst_shard"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.NETHER_STAR)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.NETHER_STAR), 1, "extract_all", 99, 0, 0, true, false, "betterdisenchanter.catalyst.nether_star"));
+        }
+        if (com.betterdisenchanter.BetterDisenchanterConfig.isCatalystEnabled(Items.EXPERIENCE_BOTTLE)) {
+            list.add(new CatalystRecipe(Ingredient.of(Items.EXPERIENCE_BOTTLE), 1, "extract_highest", 99, 0, 0, false, false, "betterdisenchanter.catalyst.experience_bottle"));
+        }
+        return list;
+    }
 
     public record DisenchantResult(ItemStack remainingInput, ItemStack outputBook) {}
 
@@ -159,43 +195,54 @@ public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
 
     public boolean matchesIngredient(ItemStack stack) {
         if (!isEnabled(stack)) return false;
-        return ingredient.test(stack);
+        return ingredient.map(ing -> ing.test(stack)).orElseGet(stack::isEmpty);
     }
 
     @Override
     public boolean matches(CatalystRecipeInput input, Level level) {
         ItemStack catalyst = input.catalyst();
         if (!isEnabled(catalyst)) return false;
-        return ingredient.test(catalyst) && catalyst.getCount() >= getRequiredCount(catalyst);
+        if (ingredient.isEmpty()) return catalyst.isEmpty();
+        return ingredient.get().test(catalyst) && catalyst.getCount() >= getRequiredCount(catalyst);
     }
 
     @Override
-    public ItemStack assemble(CatalystRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CatalystRecipeInput input) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return true;
+    public boolean showNotification() {
+        return false;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return new ItemStack(Items.ENCHANTED_BOOK);
+    public String group() {
+        return "";
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<CatalystRecipe> getSerializer() {
         return ModRecipes.CATALYST_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<CatalystRecipe> getType() {
         return ModRecipes.CATALYST_TYPE.get();
     }
 
     public static final MapCodec<CatalystRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Ingredient.CODEC.fieldOf("ingredient").forGetter(r -> r.ingredient),
+            Ingredient.CODEC.optionalFieldOf("ingredient").forGetter(r -> r.ingredient),
             Codec.INT.optionalFieldOf("count", 1).forGetter(r -> r.count),
             Codec.STRING.optionalFieldOf("action", "extract_random").forGetter(r -> r.action),
             Codec.INT.optionalFieldOf("max_enchantments", 1).forGetter(r -> r.maxEnchantments),
@@ -209,7 +256,7 @@ public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
     public static final StreamCodec<RegistryFriendlyByteBuf, CatalystRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
         public CatalystRecipe decode(RegistryFriendlyByteBuf buffer) {
-            Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
+            Optional<Ingredient> ingredient = Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.decode(buffer);
             int count = buffer.readVarInt();
             String action = buffer.readUtf();
             int maxEnchantments = buffer.readVarInt();
@@ -223,7 +270,7 @@ public class CatalystRecipe implements Recipe<CatalystRecipeInput> {
 
         @Override
         public void encode(RegistryFriendlyByteBuf buffer, CatalystRecipe recipe) {
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
+            Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
             buffer.writeVarInt(recipe.count);
             buffer.writeUtf(recipe.action);
             buffer.writeVarInt(recipe.maxEnchantments);

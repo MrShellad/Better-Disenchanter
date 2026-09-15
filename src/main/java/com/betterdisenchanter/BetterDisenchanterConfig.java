@@ -1,7 +1,7 @@
 package com.betterdisenchanter;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -273,7 +273,7 @@ public class BetterDisenchanterConfig {
 
     public static boolean isCatalystEnabled(Item item) {
         try {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+            Identifier id = BuiltInRegistries.ITEM.getKey(item);
             String idStr = id.toString();
 
             // 1. 检查全局禁用列表
@@ -299,7 +299,7 @@ public class BetterDisenchanterConfig {
 
     public static int getCatalystRequiredCount(Item item, int defaultCount) {
         try {
-            ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+            Identifier id = BuiltInRegistries.ITEM.getKey(item);
             String idStr = id.toString();
 
             // 1. 优先检查自定义覆盖列表 (格式 "物品ID=数量")

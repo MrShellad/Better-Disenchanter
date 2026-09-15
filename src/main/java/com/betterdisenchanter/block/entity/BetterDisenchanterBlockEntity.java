@@ -9,9 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import org.joml.Vector3f;
+import net.minecraft.core.particles.SpellParticleOption;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -25,8 +26,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +72,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BetterDisenchanterBlockEntity entity) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             entity.bookLastRot = entity.bookRot;
 
             Player player = level.getNearestPlayer((double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, 3.0D, false);
@@ -101,13 +103,13 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
         // Auto-correct status if items were removed externally (e.g. hoppers)
         if (entity.status == Status.WAITING && (entity.item.isEmpty() || entity.book.isEmpty())) {
             entity.status = Status.PASSIVE;
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 entity.notifyListeners();
             }
         }
 
         if (entity.status == Status.ENCHANTING) {
-            if (level.isClientSide) {
+            if (level.isClientSide()) {
                 if (BetterDisenchanterConfig.isMagicCircleEnabled()) {
                     spawnRitualParticles(level, pos, entity);
                 }
@@ -123,7 +125,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
             // 紧凑 30 ticks (1.5秒) 瞬间完成仪式
             if (entity.ticks >= 30) {
-                if (level.isClientSide) {
+                if (level.isClientSide()) {
                     if (BetterDisenchanterConfig.isCompletionBurstEnabled()) {
                         spawnCompletionRing(level, pos, entity.activeCatalyst);
                     }
@@ -135,7 +137,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
                     playCompletionSounds(level, pos, entity.activeCatalyst, recipe.keepItem);
 
-                    CatalystRecipe.DisenchantResult result = recipe.process(entity.item, level.random);
+                    CatalystRecipe.DisenchantResult result = recipe.process(entity.item, level.getRandom());
                     entity.book = result.outputBook();
                     entity.item = result.remainingInput();
                     entity.activeCatalyst = ItemStack.EMPTY;
@@ -176,10 +178,16 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
         if (level == null || catalystStack.isEmpty()) return null;
         if (!BetterDisenchanterConfig.isCatalystEnabled(catalystStack.getItem())) return null;
 
-        List<RecipeHolder<CatalystRecipe>> recipes = level.getRecipeManager().getAllRecipesFor(ModRecipes.CATALYST_TYPE.get());
-        for (RecipeHolder<CatalystRecipe> holder : recipes) {
-            if (holder.value().matchesIngredient(catalystStack)) {
-                return holder.value();
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            for (RecipeHolder<?> holder : serverLevel.recipeAccess().getRecipes()) {
+                if (holder.value() instanceof CatalystRecipe r && r.matchesIngredient(catalystStack)) {
+                    return r;
+                }
+            }
+        }
+        for (CatalystRecipe r : CatalystRecipe.getDefaultRecipes()) {
+            if (r.matchesIngredient(catalystStack)) {
+                return r;
             }
         }
         return null;
@@ -229,31 +237,31 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
     public static DustParticleOptions getThemedDust(ItemStack catalyst, float scale) {
         if (catalyst.isEmpty()) {
-            return new DustParticleOptions(new Vector3f(0.70f, 0.50f, 0.95f), scale);
+            return new DustParticleOptions(0xB380F2, scale);
         }
         Item item = catalyst.getItem();
         if (item == Items.EMERALD) {
-            return new DustParticleOptions(new Vector3f(0.15f, 0.95f, 0.35f), scale);
+            return new DustParticleOptions(0x26F259, scale);
         } else if (item == Items.DIAMOND) {
-            return new DustParticleOptions(new Vector3f(0.25f, 0.85f, 1.0f), scale);
+            return new DustParticleOptions(0x40D9FF, scale);
         } else if (item == Items.ENDER_PEARL) {
-            return new DustParticleOptions(new Vector3f(0.50f, 0.12f, 0.82f), scale);
+            return new DustParticleOptions(0x801FD1, scale);
         } else if (item == Items.HEART_OF_THE_SEA) {
-            return new DustParticleOptions(new Vector3f(0.12f, 0.75f, 0.98f), scale);
+            return new DustParticleOptions(0x1FBFFA, scale);
         } else if (item == Items.AMETHYST_SHARD) {
-            return new DustParticleOptions(new Vector3f(0.85f, 0.45f, 1.0f), scale);
+            return new DustParticleOptions(0xD973FF, scale);
         } else if (item == Items.NETHER_STAR) {
-            return new DustParticleOptions(new Vector3f(1.0f, 0.92f, 0.40f), scale);
+            return new DustParticleOptions(0xFFEB66, scale);
         } else if (item == Items.EXPERIENCE_BOTTLE) {
-            return new DustParticleOptions(new Vector3f(0.65f, 1.0f, 0.25f), scale);
+            return new DustParticleOptions(0xA6FF40, scale);
         }
-        return new DustParticleOptions(new Vector3f(0.80f, 0.60f, 1.0f), scale);
+        return new DustParticleOptions(0xCC99FF, scale);
     }
 
     public static void spawnRitualParticles(Level level, BlockPos pos, BetterDisenchanterBlockEntity entity) {
         if (!BetterDisenchanterConfig.isMagicCircleEnabled()) return;
 
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         double centerX = pos.getX() + 0.5D;
         double centerZ = pos.getZ() + 0.5D;
         double baseY = pos.getY() + 0.04D; // 紧贴方块底座地面，形成地面魔法阵
@@ -336,7 +344,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                 }
             } else if (catItem == Items.DIAMOND) {
                 if (random.nextFloat() < 0.35f) {
-                    level.addParticle(ParticleTypes.INSTANT_EFFECT, nx, baseY + 0.02D, nz, 0, 0.02D, 0);
+                    level.addParticle(SpellParticleOption.create(ParticleTypes.INSTANT_EFFECT, 0xFFFFFFFF, 1.0F), nx, baseY + 0.02D, nz, 0, 0.02D, 0);
                 }
             } else if (catItem == Items.ENDER_PEARL) {
                 if (random.nextFloat() < 0.40f) {
@@ -363,7 +371,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
     public static void spawnCompletionRing(Level level, BlockPos pos, ItemStack catalyst) {
         if (!BetterDisenchanterConfig.isCompletionBurstEnabled()) return;
 
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         DustParticleOptions themedDust = getThemedDust(catalyst, 1.5f);
         double centerX = pos.getX() + 0.5D;
         double centerZ = pos.getZ() + 0.5D;
@@ -424,7 +432,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
         // 4. 催化剂专属终结大招特效
         if (catalyst.is(Items.NETHER_STAR)) {
-            level.addParticle(ParticleTypes.FLASH, centerX, baseY + 0.5D, centerZ, 0, 0, 0);
+            level.addParticle(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), centerX, baseY + 0.5D, centerZ, 0, 0, 0);
             for (int i = 0; i < 16; i++) {
                 double vx = (random.nextDouble() - 0.5D) * 0.3D;
                 double vy = 0.1D + random.nextDouble() * 0.3D;
@@ -464,16 +472,12 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
         // 5. 原装备损毁破碎声反馈 (若未保留原装备)
         if (!keepItem) {
-            level.playSound(null, pos, SoundEvents.ITEM_BREAK, SoundSource.BLOCKS, 0.65f, 1.15f);
+            level.playSound(null, pos, SoundEvents.ITEM_BREAK.value(), SoundSource.BLOCKS, 0.65f, 1.15f);
         }
     }
 
-    public ItemInteractionResult onUseItem(ItemStack handStack, Player player, InteractionHand hand) {
-        InteractionResult result = handlePlayerInteraction(player, handStack, hand);
-        if (result.consumesAction()) {
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
-        }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    public InteractionResult onUseItem(ItemStack handStack, Player player, InteractionHand hand) {
+        return handlePlayerInteraction(player, handStack, hand);
     }
 
     public InteractionResult onUseEmptyHand(Player player) {
@@ -485,41 +489,41 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
         // 1. 仪式进行中，绝对保护
         if (status == Status.ENCHANTING) {
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // 2. 祛魔结束后，可直接右键拿取附魔书 (不管是空手、手持物品、站立还是蹲下)
         if (book.is(Items.ENCHANTED_BOOK)) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 giveOrDrop(player, book);
                 book = ItemStack.EMPTY;
                 status = Status.PASSIVE;
                 level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.8f, 0.8f);
                 notifyListeners();
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // 3. 取消祛魔时应该蹲下右键拿下物品 (Sneak + Right Click to Cancel / Retrieve)
         if (player.isShiftKeyDown()) {
             if (!item.isEmpty()) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     giveOrDrop(player, item);
                     item = ItemStack.EMPTY;
                     status = Status.PASSIVE;
                     level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.8f, 0.8f);
                     notifyListeners();
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             } else if (!book.isEmpty()) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     giveOrDrop(player, book);
                     book = ItemStack.EMPTY;
                     status = Status.PASSIVE;
                     level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.8f, 0.8f);
                     notifyListeners();
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         }
@@ -529,7 +533,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
         // 4A. 手持普通书本 (Regular Book)
         if (handStack.is(Items.BOOK)) {
             if (book.isEmpty()) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     book = handStack.copyWithCount(1);
                     if (!player.isCreative()) handStack.shrink(1);
                     bookOpenAngle = 0;
@@ -537,7 +541,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                     level.playSound(null, worldPosition, SoundEvents.CHISELED_BOOKSHELF_INSERT, SoundSource.BLOCKS, 0.8f, 0.8f);
                     notifyListeners();
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -545,11 +549,11 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
         if (hasEnchantments(handStack)) {
             // 严格检验：必须先放置普通书本！
             if (book.isEmpty()) {
-                if (level.isClientSide) {
-                    player.displayClientMessage(Component.translatable("text.betterdisenchanter.need_book"), true);
+                if (level.isClientSide()) {
+                    player.sendOverlayMessage(Component.translatable("text.betterdisenchanter.need_book"));
                 }
                 level.playSound(null, worldPosition, SoundEvents.CRAFTER_FAIL, SoundSource.BLOCKS, 0.6f, 1.8f);
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
 
             if (!book.is(Items.BOOK)) {
@@ -558,7 +562,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
             // Case 4B-1: 台面上保留有上一次仪式的未附魔原装备 -> 一键丝滑换装
             if (!item.isEmpty() && !hasEnchantments(item)) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     giveOrDrop(player, item);
                     item = handStack.copyWithCount(1);
                     if (!player.isCreative()) handStack.shrink(1);
@@ -566,19 +570,20 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                     level.playSound(null, worldPosition, SoundEvents.CHISELED_BOOKSHELF_INSERT_ENCHANTED, SoundSource.BLOCKS, 0.8f, 1.2f);
                     notifyListeners();
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
 
             // Case 4B-2: 装备槽位为空 -> 放置附魔装备
+            // Case 4B-2: 装备槽位为空 -> 放置附魔装备
             if (item.isEmpty()) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     item = handStack.copyWithCount(1);
                     if (!player.isCreative()) handStack.shrink(1);
                     status = Status.WAITING;
                     level.playSound(null, worldPosition, SoundEvents.CHISELED_BOOKSHELF_INSERT_ENCHANTED, SoundSource.BLOCKS, 0.8f, 1.2f);
                     notifyListeners();
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
 
             return InteractionResult.PASS;
@@ -592,7 +597,7 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                 if (recipe != null) {
                     int requiredCount = recipe.getRequiredCount(handStack);
                     if (handStack.getCount() >= requiredCount) {
-                        if (!level.isClientSide) {
+                        if (!level.isClientSide()) {
                             activeCatalyst = handStack.copyWithCount(requiredCount);
                             if (!player.isCreative()) handStack.shrink(requiredCount);
                             status = Status.ENCHANTING;
@@ -600,13 +605,13 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                             playCatalystStartSound(level, worldPosition, activeCatalyst);
                             notifyListeners();
                         }
-                        return InteractionResult.sidedSuccess(level.isClientSide);
+                        return InteractionResult.SUCCESS;
                     } else {
-                        if (level.isClientSide) {
-                            player.displayClientMessage(Component.translatable("text.betterdisenchanter.extra_catalysts_required", requiredCount - handStack.getCount()), true);
+                        if (level.isClientSide()) {
+                            player.sendOverlayMessage(Component.translatable("text.betterdisenchanter.extra_catalysts_required", requiredCount - handStack.getCount()));
                         }
                         level.playSound(null, worldPosition, SoundEvents.CRAFTER_FAIL, SoundSource.BLOCKS, 0.8f, 2.0f);
-                        return InteractionResult.sidedSuccess(level.isClientSide);
+                        return InteractionResult.SUCCESS;
                     }
                 }
             }
@@ -619,20 +624,20 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
                 }
 
                 if (BetterDisenchanterConfig.isNoCatalystAllowed()) {
-                    if (!level.isClientSide) {
+                    if (!level.isClientSide()) {
                         activeCatalyst = ItemStack.EMPTY;
                         status = Status.ENCHANTING;
                         ticks = 0;
                         playCatalystStartSound(level, worldPosition, ItemStack.EMPTY);
                         notifyListeners();
                     }
-                    return InteractionResult.sidedSuccess(level.isClientSide);
+                    return InteractionResult.SUCCESS;
                 } else {
-                    if (level.isClientSide) {
-                        player.displayClientMessage(Component.translatable("text.betterdisenchanter.need_catalyst"), true);
+                    if (level.isClientSide()) {
+                        player.sendOverlayMessage(Component.translatable("text.betterdisenchanter.need_catalyst"));
                     }
                     level.playSound(null, worldPosition, SoundEvents.CRAFTER_FAIL, SoundSource.BLOCKS, 0.6f, 1.8f);
-                    return InteractionResult.sidedSuccess(level.isClientSide);
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
@@ -642,14 +647,14 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
             if (hand == InteractionHand.OFF_HAND && !player.getMainHandItem().isEmpty()) {
                 return InteractionResult.PASS;
             }
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 giveOrDrop(player, item);
                 item = ItemStack.EMPTY;
                 status = Status.PASSIVE;
                 level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.8f, 0.8f);
                 notifyListeners();
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // 4F. 如果台面只放置了书本，而玩家空手右键 -> 友好提示需要放置附魔装备
@@ -657,18 +662,18 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
             if (hand == InteractionHand.OFF_HAND && !player.getMainHandItem().isEmpty()) {
                 return InteractionResult.PASS;
             }
-            if (level.isClientSide) {
-                player.displayClientMessage(Component.translatable("text.betterdisenchanter.need_item"), true);
+            if (level.isClientSide()) {
+                player.sendOverlayMessage(Component.translatable("text.betterdisenchanter.need_item"));
             }
             level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.6f, 1.8f);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;
     }
 
     public void onPunch(Player player) {
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (status == Status.ENCHANTING) return;
 
         // 1. 祛魔结束后，可直接左键拿取附魔书！
@@ -707,80 +712,55 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
 
     public void notifyListeners() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
 
-    // NBT Serialization
+    // ValueInput/ValueOutput Serialization
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (!this.book.isEmpty()) {
-            tag.put("Book", this.book.save(registries));
+            output.store("Book", ItemStack.CODEC, this.book);
         }
         if (!this.item.isEmpty()) {
-            tag.put("Item", this.item.save(registries));
+            output.store("Item", ItemStack.CODEC, this.item);
         }
         if (!this.activeCatalyst.isEmpty()) {
-            tag.put("ActiveCatalyst", this.activeCatalyst.save(registries));
+            output.store("ActiveCatalyst", ItemStack.CODEC, this.activeCatalyst);
         }
-        tag.putString("Status", this.status.name());
-        tag.putFloat("Ticks", this.ticks);
-        tag.putFloat("Angle", this.bookOpenAngle);
+        output.putString("Status", this.status.name());
+        output.putFloat("Ticks", this.ticks);
+        output.putFloat("Angle", this.bookOpenAngle);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains("Book")) {
-            this.book = ItemStack.parse(registries, tag.getCompound("Book")).orElse(ItemStack.EMPTY);
-        } else {
-            this.book = ItemStack.EMPTY;
-        }
-
-        if (tag.contains("Item")) {
-            this.item = ItemStack.parse(registries, tag.getCompound("Item")).orElse(ItemStack.EMPTY);
-        } else {
-            this.item = ItemStack.EMPTY;
-        }
-
-        if (tag.contains("ActiveCatalyst")) {
-            this.activeCatalyst = ItemStack.parse(registries, tag.getCompound("ActiveCatalyst")).orElse(ItemStack.EMPTY);
-        } else {
-            this.activeCatalyst = ItemStack.EMPTY;
-        }
-
-        if (tag.contains("Status")) {
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.book = input.read("Book", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        this.item = input.read("Item", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        this.activeCatalyst = input.read("ActiveCatalyst", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        input.getString("Status").ifPresent(statusStr -> {
             try {
-                this.status = Status.valueOf(tag.getString("Status"));
+                this.status = Status.valueOf(statusStr);
             } catch (Exception ignored) {
                 this.status = Status.PASSIVE;
             }
-        }
-        this.ticks = tag.getFloat("Ticks");
-        this.bookOpenAngle = tag.getFloat("Angle");
+        });
+        this.ticks = input.getFloatOr("Ticks", 0f);
+        this.bookOpenAngle = input.getFloatOr("Angle", 0f);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+        return saveCustomOnly(registries);
     }
 
     @Nullable
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        CompoundTag tag = pkt.getTag();
-        if (tag != null) {
-            loadAdditional(tag, lookupProvider);
-        }
     }
 
     // WorldlyContainer implementation for hopper automation
@@ -885,6 +865,15 @@ public class BetterDisenchanterBlockEntity extends BlockEntity implements Worldl
         activeCatalyst = ItemStack.EMPTY;
         status = Status.PASSIVE;
         notifyListeners();
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) {
+            Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), this.book);
+            Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), this.item);
+            Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), this.activeCatalyst);
+        }
     }
 
     // Getters

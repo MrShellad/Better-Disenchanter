@@ -4,10 +4,10 @@ import com.betterdisenchanter.BetterDisenchanter;
 import com.betterdisenchanter.block.entity.BetterDisenchanterBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -60,15 +60,15 @@ public class BetterDisenchanterBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BetterDisenchanterBlockEntity disenchanterBe) {
             InteractionResult result = disenchanterBe.handlePlayerInteraction(player, stack, hand);
             if (result.consumesAction()) {
-                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+                return result;
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override
@@ -90,16 +90,7 @@ public class BetterDisenchanterBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof BetterDisenchanterBlockEntity disenchanterBe) {
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), disenchanterBe.getBook());
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), disenchanterBe.getItem());
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), disenchanterBe.getActiveCatalyst());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-            super.onRemove(state, level, pos, newState, movedByPiston);
-        }
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 }
